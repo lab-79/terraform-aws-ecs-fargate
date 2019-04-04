@@ -1,5 +1,7 @@
 # Task role assume policy
 data "aws_iam_policy_document" "task_assume" {
+  count = "${var.create ? 1 : 0}"
+
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
@@ -13,11 +15,13 @@ data "aws_iam_policy_document" "task_assume" {
 
 # Task logging privileges
 data "aws_iam_policy_document" "task_permissions" {
+  count = "${var.create ? 1 : 0}"
+
   statement {
     effect = "Allow"
 
     resources = [
-      "${aws_cloudwatch_log_group.main.arn}",
+      "${var.create ? aws_cloudwatch_log_group.main.0.arn : ""}",
     ]
 
     actions = [
@@ -29,6 +33,8 @@ data "aws_iam_policy_document" "task_permissions" {
 
 # Task ecr privileges
 data "aws_iam_policy_document" "task_execution_permissions" {
+  count = "${var.create ? 1 : 0}"
+
   statement {
     effect = "Allow"
 

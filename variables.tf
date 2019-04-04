@@ -1,6 +1,11 @@
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+variable "create" {
+  description = "Whether to create all resources"
+  default     = true
+}
+
 variable "name_prefix" {
   description = "A prefix used for naming resources."
 }
