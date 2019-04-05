@@ -151,7 +151,7 @@ resource "aws_ecs_service" "service" {
 
   network_configuration {
     subnets          = ["${var.private_subnet_ids}"]
-    security_groups  = ["${concat(var.create ? list(aws_security_group.ecs_service.0.id) : list(), var.extra_security_groups)}"]
+    security_groups  = ["${concat(slice(list(aws_security_group.ecs_service.0.id), var.create ? 0 : 1, 1), var.extra_security_groups)}"]
     assign_public_ip = "${var.task_container_assign_public_ip}"
   }
 
