@@ -19,6 +19,12 @@ variable "private_subnet_ids" {
   type        = "list"
 }
 
+variable "extra_security_groups" {
+  description = "Extra security groups to add to the AWS ECS service"
+  type        = "list"
+  default     = []
+}
+
 variable "cluster_id" {
   description = "The Amazon Resource Name (ARN) that identifies the cluster."
 }
