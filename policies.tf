@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "task_execution_permissions" {
 # Task ssm privileges
 
 data "aws_iam_policy_document" "task_parameter_permissions" {
-  count = "${var.should_provision ? 1 : 0}"
+  count = "${var.create ? 1 : 0}"
 
   statement {
     effect = "Allow"
