@@ -29,6 +29,13 @@ resource "aws_iam_role_policy" "task_execution" {
   policy = "${element(concat(data.aws_iam_policy_document.task_execution_permissions.*.json, list("")), 0)}"
 }
 
+resource "aws_iam_role_policy" "read_ssm_parameter" {
+  count  = "${var.create ? 1 : 0}"
+  name   = "${var.name_prefix}-read-ssm-params-permissions"
+  role   = "${element(concat(aws_iam_role.execution.*.id, list("")), 0)}"
+  policy = "${element(concat(data.aws_iam_policy_document.task_parameter_permissions.*.json, list("")), 0)}"
+}
+
 # ------------------------------------------------------------------------------
 # IAM - Task role, basic. Users of the module will append policies to this role
 # when they use the module. S3, Dynamo permissions etc etc.
@@ -109,6 +116,7 @@ data "null_data_source" "task_environment_secret" {
     valueFrom = "${element(values(var.task_container_environment_secret), count.index)}"
   }
 }
+
 resource "aws_ecs_task_definition" "task" {
   count                    = "${var.create ? 1 : 0}"
   family                   = "${var.name_prefix}"
