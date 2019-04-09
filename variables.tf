@@ -80,7 +80,15 @@ variable "task_container_environment_count" {
   description = "NOTE: This exists purely to calculate count in Terraform. Should equal the length of your environment map."
   default     = "0"
 }
+variable "task_container_environment_secret" {
+  description = "The environment variables from System Manager Parameter Store to pass to a container."
+  default     = {}
+}
 
+variable "task_container_environment_secret_count" {
+  description = "NOTE: This exists purely to calculate count in Terraform. Should equal the length of your environment map."
+  default     = "0"
+}
 variable "log_retention_in_days" {
   description = "Number of days the logs will be retained in CloudWatch."
   default     = "30"

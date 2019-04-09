@@ -101,6 +101,14 @@ data "null_data_source" "task_environment" {
   }
 }
 
+data "null_data_source" "task_environment_secret" {
+  count = "${var.task_container_environment_secret_count}"
+
+  inputs = {
+    name      = "${element(keys(var.task_container_environment_secret), count.index)}"
+    valueFrom = "${element(values(var.task_container_environment_secret), count.index)}"
+  }
+}
 resource "aws_ecs_task_definition" "task" {
   count                    = "${var.create ? 1 : 0}"
   family                   = "${var.name_prefix}"
@@ -132,7 +140,8 @@ resource "aws_ecs_task_definition" "task" {
         }
     },
     "command": ${jsonencode(var.task_container_command)},
-    "environment": ${jsonencode(data.null_data_source.task_environment.*.outputs)}
+    "environment": ${jsonencode(data.null_data_source.task_environment.*.outputs)},
+    "secrets": ${jsonencode(data.null_data_source.task_environment_secret.*.outputs)}
 }]
 EOF
 }
