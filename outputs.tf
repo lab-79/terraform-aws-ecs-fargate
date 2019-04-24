@@ -16,6 +16,11 @@ output "task_role_arn" {
   value       = "${element(concat(aws_iam_role.task.*.arn, list("")), 0)}"
 }
 
+output "task_execution_role_arn" {
+  description = "The Amazon Resource Name (ARN) specifying the service execution role."
+  value       = "${element(concat(aws_iam_role.execution.*.id, list("")), 0)}"
+}
+
 output "task_role_name" {
   description = "The name of the service role."
   value       = "${element(concat(aws_iam_role.task.*.name, list("")), 0)}"
