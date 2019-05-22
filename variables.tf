@@ -80,6 +80,7 @@ variable "task_container_environment_count" {
   description = "NOTE: This exists purely to calculate count in Terraform. Should equal the length of your environment map."
   default     = "0"
 }
+
 variable "task_container_environment_secret" {
   description = "The environment variables from System Manager Parameter Store to pass to a container."
   default     = {}
@@ -89,6 +90,19 @@ variable "task_container_environment_secret_count" {
   description = "NOTE: This exists purely to calculate count in Terraform. Should equal the length of your environment map."
   default     = "0"
 }
+
+variable "ssm_kms_key_arn" {
+  type        = "string"
+  default     = "*"
+  description = "ARN of the KMS Key used to decrypt our environment secrets stored in AWS SSM"
+}
+
+variable "task_container_environment_ssm_arns" {
+  type        = "list"
+  default     = ["*"]
+  description = "A list of the ARNs of the AWS SSM parameters representing our environment variables and secrets"
+}
+
 variable "log_retention_in_days" {
   description = "Number of days the logs will be retained in CloudWatch."
   default     = "30"

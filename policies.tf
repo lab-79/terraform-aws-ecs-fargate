@@ -53,13 +53,20 @@ data "aws_iam_policy_document" "task_parameter_permissions" {
   statement {
     effect = "Allow"
 
-    resources = [
-      "*",
-    ]
+    resources = ["${var.task_container_environment_ssm_arns}"]
 
     actions = [
       "ssm:GetParameters",
       "secretsmanager:GetSecretValue",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    resources = ["${var.ssm_kms_key_arn}"]
+
+    actions = [
       "kms:Decrypt",
     ]
   }
