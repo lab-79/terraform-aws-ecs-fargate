@@ -109,7 +109,7 @@ data "null_data_source" "task_environment" {
 }
 
 data "null_data_source" "task_environment_secret" {
-  count = "${var.task_container_environment_secret_count}"
+  count = "${var.create * var.task_container_environment_secret_count}"
 
   inputs = {
     name      = "${element(keys(var.task_container_environment_secret), count.index)}"
