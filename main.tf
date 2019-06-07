@@ -19,14 +19,21 @@ resource "aws_cloudwatch_log_group" "main" {
 resource "aws_iam_role" "execution" {
   count              = "${var.create ? 1 : 0}"
   name               = "${var.name_prefix}-task-execution-role"
-  assume_role_policy = "${element(concat(data.aws_iam_policy_document.task_assume.*.json, list("")), 0)}"
+  assume_role_policy = "${data.aws_iam_policy_document.task_assume.json}"
 }
 
 resource "aws_iam_role_policy" "task_execution" {
   count  = "${var.create ? 1 : 0}"
   name   = "${var.name_prefix}-task-execution"
   role   = "${element(concat(aws_iam_role.execution.*.id, list("")), 0)}"
-  policy = "${element(concat(data.aws_iam_policy_document.task_execution_permissions.*.json, list("")), 0)}"
+  policy = "${data.aws_iam_policy_document.task_execution_permissions.json}"
+}
+
+resource "aws_iam_role_policy" "read_ssm_parameter" {
+  count  = "${var.create ? 1 : 0}"
+  name   = "${var.name_prefix}-read-ssm-params-permissions"
+  role   = "${element(concat(aws_iam_role.execution.*.id, list("")), 0)}"
+  policy = "${data.aws_iam_policy_document.task_parameter_permissions.json}"
 }
 
 # ------------------------------------------------------------------------------
@@ -36,14 +43,14 @@ resource "aws_iam_role_policy" "task_execution" {
 resource "aws_iam_role" "task" {
   count              = "${var.create ? 1 : 0}"
   name               = "${var.name_prefix}-task-role"
-  assume_role_policy = "${element(concat(data.aws_iam_policy_document.task_assume.*.json, list("")), 0)}"
+  assume_role_policy = "${data.aws_iam_policy_document.task_assume.json}"
 }
 
 resource "aws_iam_role_policy" "log_agent" {
   count  = "${var.create ? 1 : 0}"
   name   = "${var.name_prefix}-log-permissions"
   role   = "${element(concat(aws_iam_role.task.*.id, list("")), 0)}"
-  policy = "${element(concat(data.aws_iam_policy_document.task_permissions.*.json, list("")), 0)}"
+  policy = "${data.aws_iam_policy_document.task_permissions.json}"
 }
 
 # ------------------------------------------------------------------------------
@@ -101,6 +108,15 @@ data "null_data_source" "task_environment" {
   }
 }
 
+data "null_data_source" "task_environment_secret" {
+  count = "${var.create * var.task_container_environment_secret_count}"
+
+  inputs = {
+    name      = "${element(keys(var.task_container_environment_secret), count.index)}"
+    valueFrom = "${element(values(var.task_container_environment_secret), count.index)}"
+  }
+}
+
 resource "aws_ecs_task_definition" "task" {
   count                    = "${var.create ? 1 : 0}"
   family                   = "${var.name_prefix}"
@@ -132,7 +148,8 @@ resource "aws_ecs_task_definition" "task" {
         }
     },
     "command": ${jsonencode(var.task_container_command)},
-    "environment": ${jsonencode(data.null_data_source.task_environment.*.outputs)}
+    "environment": ${jsonencode(data.null_data_source.task_environment.*.outputs)},
+    "secrets": ${jsonencode(data.null_data_source.task_environment_secret.*.outputs)}
 }]
 EOF
 }
